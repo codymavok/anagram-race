@@ -11,7 +11,7 @@ const app = express();
 app.get('/healthz', (_req, res) => res.json({ ok: true }));
 
 // Serve the built client (exists after `npm run build`); in dev Vite serves it instead.
-const clientDist = path.resolve(__dirname, '../../../client/dist');
+const clientDist = path.resolve(__dirname, '../../../../client/dist');
 app.use(express.static(clientDist));
 app.get('*', (_req, res) => res.sendFile(path.join(clientDist, 'index.html'), (err) => err && res.status(404).end()));
 
