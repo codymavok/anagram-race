@@ -1,0 +1,13 @@
+:root {
+  --ground: #dce2e5;
+  --tile: #fbfcfc;
+  --ink: #14181c;
+  --accept: #0f6b63;
+  --reject: #9e4a4a;
+  --clock: #c9821b;
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body: 'Public Sans', system-ui, sans-serif;
+  --font-mono: 'Martian Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--ground); color: var(--ink); }
