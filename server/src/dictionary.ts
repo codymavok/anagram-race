@@ -49,7 +49,17 @@ export function solutionsFor(dict: Dictionary, letters: string): string[] {
   return out.sort((a, b) => b.length - a.length || a.localeCompare(b));
 }
 
-const dataDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../data');
+import { existsSync } from 'node:fs';
+
+/** server/data, whether running from src/ (tsx) or dist/server/src/ (compiled). */
+const dataDir = (() => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  for (const rel of ['../data', '../../../data']) {
+    const p = path.resolve(here, rel);
+    if (existsSync(path.join(p, 'words.txt'))) return p;
+  }
+  return path.resolve(here, '../data');
+})();
 
 export function loadWords(file = path.join(dataDir, 'words.txt')): string[] {
   return readFileSync(file, 'utf8').split('\n').filter(Boolean);
