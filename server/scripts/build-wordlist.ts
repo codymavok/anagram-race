@@ -52,7 +52,6 @@ console.log(`words.txt: ${words.length} words (source: ${source})`);
 
 // ---- seeds ----
 const dict = buildIndex(words);
-const six = words.filter((w) => w.length === 6);
 const isRich = (w: string) => {
   const s = solutionsFor(dict, w);
   return s.length >= 25 && s.filter((x) => x.length >= 5).length >= 3;
