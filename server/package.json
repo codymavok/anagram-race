@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "PORT=${PORT:-3210} tsx watch src/index.ts",
     "build": "tsc -p tsconfig.json",
     "build:wordlist": "tsx scripts/build-wordlist.ts",
     "puzzles:sample": "tsx scripts/sample-puzzles.ts"

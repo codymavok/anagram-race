@@ -53,6 +53,11 @@ export function useGame(): Game {
           break;
         case 'error':
           setError({ code: m.code, message: m.message });
+          // Room-level failures (stale rejoin after a server restart, expired room) mean any
+          // snapshot we're rendering is for a room that no longer exists — fall back to Home.
+          if (m.code === 'no_such_room' || m.code === 'room_expired' || m.code === 'bad_token') {
+            setSnapshot(null);
+          }
           break;
       }
     });
