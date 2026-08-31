@@ -1,5 +1,7 @@
 # Anagrams
 
+**Play it: https://anagrams-ruq4.onrender.com**
+
 A browser-based, two-player, real-time anagram race. Both players see the same six letters and have **60 seconds** to find as many words as they can. Highest score wins. Inspired by fast-paced anagram games.
 
 ## How to play
