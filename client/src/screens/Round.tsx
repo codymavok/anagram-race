@@ -15,78 +15,64 @@ export default function Round({ game, snapshot }: { game: Game; snapshot: RoomSn
   const round = snapshot.round!;
   const me = snapshot.players[snapshot.you];
   const opp = snapshot.players[1 - snapshot.you];
-  const [typed, setTyped] = useState('');
+  /** Tile indices picked so far, in order. Click a tile to add it; click it again to remove it. */
+  const [picked, setPicked] = useState<number[]>([]);
   const [order, setOrder] = useState<number[]>(() => round.letters.split('').map((_, i) => i));
   const [shake, setShake] = useState(0);
   const [note, setNote] = useState<string | null>(null);
   const live = snapshot.phase === 'live';
-  const typedRef = useRef(typed);
-  typedRef.current = typed;
+  const word = picked.map((i) => round.letters[i]).join('');
+  const wordRef = useRef(word);
+  wordRef.current = word;
 
   // New letters (rematch) → reset local state.
   useEffect(() => {
     setOrder(round.letters.split('').map((_, i) => i));
-    setTyped('');
+    setPicked([]);
   }, [round.letters]);
 
   // Server verdicts.
   const { flash } = game;
   useEffect(() => {
     if (!flash) return;
-    if (flash.kind === 'accepted') {
-      setNote(null);
-    } else {
+    if (flash.kind === 'accepted') setNote(null);
+    else {
       setShake((n) => n + 1);
       setNote(REASONS[flash.reason!]);
     }
-    setTyped('');
+    setPicked([]);
   }, [flash]);
 
-  // Keyboard: global, never needs focus.
+  const submit = () => {
+    if (wordRef.current.length && live) game.submit(wordRef.current);
+  };
+  const shuffleTiles = () => setOrder((o) => shuffle(o));
+
+  // Keyboard shortcuts: Enter submits, Backspace/Delete removes the last letter, Esc clears.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const t = typedRef.current;
       if (e.key === 'Enter') {
-        if (t.length && live) game.submit(t);
-        else if (t.length) setTyped('');
+        submit();
         e.preventDefault();
-      } else if (e.key === 'Backspace') {
-        setTyped(t.slice(0, -1));
+      } else if (e.key === 'Backspace' || e.key === 'Delete') {
+        setPicked((p) => p.slice(0, -1));
         setNote(null);
         e.preventDefault();
       } else if (e.key === 'Escape') {
-        setTyped('');
+        setPicked([]);
         setNote(null);
-      } else if (e.key === ' ') {
-        setOrder((o) => shuffle(o));
-        e.preventDefault();
-      } else if (/^[a-zA-Z]$/.test(e.key)) {
-        const c = e.key.toLowerCase();
-        if (t.length < 6 && countAvailable(round.letters, t, c) > 0) {
-          setTyped(t + c);
-          setNote(null);
-        }
-        e.preventDefault();
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [game, live, round.letters]);
+  }, [live]);
 
-  // Which tile indices are consumed by the current word (first unused match per typed letter).
-  const consumed = useMemo(() => {
-    const used = new Set<number>();
-    for (const c of typed) {
-      const i = round.letters.split('').findIndex((l, idx) => l === c && !used.has(idx));
-      if (i !== -1) used.add(i);
-    }
-    return used;
-  }, [typed, round.letters]);
+  const consumed = useMemo(() => new Set(picked), [picked]);
 
   const tileClick = (idx: number) => {
-    if (consumed.has(idx) || typed.length >= 6) return;
-    setTyped(typed + round.letters[idx]);
+    setNote(null);
+    setPicked((p) => (p.includes(idx) ? p.filter((i) => i !== idx) : p.length < 6 ? [...p, idx] : p));
   };
 
   const words = [...(me.words ?? [])].reverse();
@@ -118,7 +104,7 @@ export default function Round({ game, snapshot }: { game: Game; snapshot: RoomSn
               className={'tile mono' + (consumed.has(idx) ? ' used' : '')}
               onClick={() => tileClick(idx)}
               aria-pressed={consumed.has(idx)}
-              tabIndex={-1}
+              disabled={!live}
             >
               {round.letters[idx].toUpperCase()}
             </button>
@@ -127,15 +113,17 @@ export default function Round({ game, snapshot }: { game: Game; snapshot: RoomSn
 
         <div key={shake} className={'typed mono' + (shake ? ' shake' : '')} onAnimationEnd={() => setShake(0)} aria-live="polite">
           {live ? (
-            <>
-              <span className="text">{typed.toUpperCase()}</span>
-              <span className="caret" aria-hidden="true" />
-            </>
+            <span className="text">{word.toUpperCase()}</span>
           ) : (
             <Countdown startsAt={round.startsAt} offset={game.offset} />
           )}
         </div>
-        <p className={'note' + (note ? ' show' : '')} role="status">{note ?? ' '}</p>
+        <p className={'note' + (note ? ' show' : '')} role="status">{note ?? ' '}</p>
+
+        <div className="controls">
+          <button type="button" onClick={shuffleTiles} disabled={!live}>Shuffle</button>
+          <button type="button" className="primary" onClick={submit} disabled={!live || word.length === 0}>Submit</button>
+        </div>
       </section>
 
       <ol className="found" aria-label="Your words">
@@ -182,13 +170,6 @@ function Clock({ startsAt, endsAt, offset, live }: { startsAt: number; endsAt: n
       <span className="mono remaining" ref={label}>60</span>
     </div>
   );
-}
-
-function countAvailable(pool: string, typed: string, c: string): number {
-  let n = 0;
-  for (const l of pool) if (l === c) n++;
-  for (const l of typed) if (l === c) n--;
-  return n;
 }
 
 function shuffle<T>(a: T[]): T[] {

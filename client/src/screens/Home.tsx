@@ -35,7 +35,7 @@ export default function Home({ game, expired }: { game: Game; expired: boolean }
   return (
     <main className="home">
       <header className="home-head">
-        <h1 className="display">Anagram Race</h1>
+        <h1 className="display">Anagrams</h1>
         <p className="lede">Six letters. Sixty seconds. Two players. Find more words than your opponent.</p>
       </header>
 
@@ -91,7 +91,7 @@ export default function Home({ game, expired }: { game: Game; expired: boolean }
             <tr><td>6 letters</td><td className="mono">2,000</td></tr>
           </tbody>
         </table>
-        <p>Type to spell, <kbd>Enter</kbd> to submit, <kbd>Esc</kbd> to clear, <kbd>Space</kbd> to shuffle the tiles.</p>
+        <p>Click letters to spell a word, then hit Submit (or <kbd>Enter</kbd>). Click a letter again or press <kbd>Delete</kbd> to remove it.</p>
       </section>
     </main>
   );

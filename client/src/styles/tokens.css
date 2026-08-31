@@ -153,6 +153,11 @@ main { max-width: var(--max); margin: 0 auto; padding: 4rem 1.5rem 3rem; }
 .found .pts, .missed .pts, .col .pts { color: var(--accept); font-weight: 600; }
 @keyframes pop { 0% { background: rgba(15, 107, 99, 0.18); transform: translateY(-4px); } 100% { background: transparent; transform: none; } }
 
+.controls { display: flex; gap: 0.6rem; }
+.controls button { min-width: 7.5rem; }
+.tile:disabled { cursor: default; opacity: 0.6; }
+.tile.used:disabled { opacity: 0.28; }
+
 /* ---------- Results ---------- */
 .results h1 { font-size: clamp(2.4rem, 7vw, 3.6rem); margin-bottom: 1rem; }
 .results .notice { margin-bottom: 1rem; max-width: 40ch; }
