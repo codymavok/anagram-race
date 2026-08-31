@@ -91,7 +91,7 @@ export default function Home({ game, expired }: { game: Game; expired: boolean }
             <tr><td>6 letters</td><td className="mono">2,000</td></tr>
           </tbody>
         </table>
-        <p>Click letters to spell a word, then hit Submit (or <kbd>Enter</kbd>). Click a letter again or press <kbd>Delete</kbd> to remove it.</p>
+        <p>Type or click letters to spell a word; <kbd>Enter</kbd> submits. Click a letter again or press <kbd>Delete</kbd> to remove it, <kbd>Esc</kbd> clears, <kbd>Space</kbd> shuffles the tiles.</p>
       </section>
     </main>
   );

@@ -62,11 +62,24 @@ export default function Round({ game, snapshot }: { game: Game; snapshot: RoomSn
       } else if (e.key === 'Escape') {
         setPicked([]);
         setNote(null);
+      } else if (e.key === ' ') {
+        setOrder((o) => shuffle(o));
+        e.preventDefault();
+      } else if (/^[a-zA-Z]$/.test(e.key)) {
+        // Typing picks the first unused tile with that letter — same multiset rules as clicking.
+        const c = e.key.toLowerCase();
+        setPicked((p) => {
+          if (p.length >= 6) return p;
+          const idx = round.letters.split('').findIndex((l, i) => l === c && !p.includes(i));
+          return idx === -1 ? p : [...p, idx];
+        });
+        setNote(null);
+        e.preventDefault();
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [live]);
+  }, [live, round.letters]);
 
   const consumed = useMemo(() => new Set(picked), [picked]);
 
